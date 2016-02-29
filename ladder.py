@@ -9,7 +9,7 @@ layer_sizes = [97, 1000, 500, 250, 23]
 
 L = len(layer_sizes) - 1 # number of layers
 
-num_examples = 50000
+num_examples = 2170000
 num_epochs = 150
 #num_labeled = 23
 

@@ -38,15 +38,15 @@ def convert_txt_to_npy(txt_path, labeled=True):
         for el in y:
             y_numeric += [y_dic[el]]
             
-        dic['labels'] = np.array(y_numeric)
+        dic['labels'] = np.float16(np.array(y_numeric))
         dic['compounds'] = df[1].values
-        dic['data'] = df.iloc[:,2:].values
+        dic['data'] = np.float16(df.iloc[:,2:].values)
         print('=> Extracted %i labeled objects with %i features' % (df.iloc[:,2:].shape))
     else:
         # First index is object_id, second index is compound
         dic['object_id'] = df[0].values
         dic['compound'] = df[1].values
-        dic['data'] = df.iloc[:,2:].values
+        dic['data'] = np.float16(df.iloc[:,2:].values)
         print('=> Extracted %i unlabeled objects with %i features' % (df.iloc[:,2:].shape))
     return dic
 
@@ -113,14 +113,14 @@ class DataSet(object):
             # Finished epoch
             self._epochs_completed += 1
             # Shuffle the data
-        perm = np.arange(self._num_examples)
-        np.random.shuffle(perm)
-        self._data = self._data[perm]
-        self._labels = self._labels[perm]
-        # Start next epoch
-        start = 0
-        self._index_in_epoch = batch_size
-        assert batch_size <= self._num_examples
+            perm = np.arange(self._num_examples)
+            np.random.shuffle(perm)
+            self._data = self._data[perm]
+            self._labels = self._labels[perm]
+            # Start next epoch
+            start = 0
+            self._index_in_epoch = batch_size
+            assert batch_size <= self._num_examples
         end = self._index_in_epoch
         return self._data[start:end], self._labels[start:end]
             
