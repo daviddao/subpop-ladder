@@ -143,7 +143,7 @@ class SemiDataSet(object):
         if batch_size > self.n_labeled:
             labeled_data, labels = self.labeled_ds.next_batch(self.n_labeled)
         else:
-            labeled_data, labels = self.labeled_ds.next_batch(self.n_labeled)
+            labeled_data, labels = self.labeled_ds.next_batch(batch_size)
         data = np.vstack([labeled_data, unlabeled_data])
         return data, labels
 
