@@ -5,7 +5,7 @@ import os
 import csv
 from tqdm import tqdm
 
-layer_sizes = [97, 1000, 500, 250, 250, 23]
+layer_sizes = [97, 1000, 500, 250, 250, 250, 23]
 
 L = len(layer_sizes) - 1 # number of layers
 
@@ -14,7 +14,7 @@ num_examples = 2170000
 num_epochs = 50
 #num_labeled = 23
 
-starter_learning_rate = 0.02
+starter_learning_rate = 0.00005
 
 decay_after = 15 # epoch after which to begin learning rate decay
 
