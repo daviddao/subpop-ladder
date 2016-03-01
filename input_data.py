@@ -8,6 +8,8 @@ import numpy as np
 import pandas as pd
 
 from sklearn.cross_validation import train_test_split
+from sklearn.lda import LDA
+from sklearn import metrics
 
 LABELED_RL_PATH = '../subpop_data/B6_robust_linear_training.txt'
 UNLABELED_RL_PATH = '../subpop_data/B6_robust_linear_test.txt'
@@ -38,15 +40,15 @@ def convert_txt_to_npy(txt_path, labeled=True):
         for el in y:
             y_numeric += [y_dic[el]]
             
-        dic['labels'] = np.float16(np.array(y_numeric))
+        dic['labels'] = np.float32(np.array(y_numeric))
         dic['compounds'] = df[1].values
-        dic['data'] = np.float16(df.iloc[:,2:].values)
+        dic['data'] = np.float32(df.iloc[:,2:].values)
         print('=> Extracted %i labeled objects with %i features' % (df.iloc[:,2:].shape))
     else:
         # First index is object_id, second index is compound
         dic['object_id'] = df[0].values
         dic['compound'] = df[1].values
-        dic['data'] = np.float16(df.iloc[:,2:].values)
+        dic['data'] = np.float32(df.iloc[:,2:].values)
         print('=> Extracted %i unlabeled objects with %i features' % (df.iloc[:,2:].shape))
     return dic
 
@@ -152,20 +154,25 @@ Read data and convert it into an DataSet object
 '''
 def read_subpop_data(one_hot=True, fake_data=False, test_size=0.2):
 
-	labeled_dic = convert_txt_to_npy(LABELED_RL_PATH)
-	unlabeled_dic = convert_txt_to_npy(UNLABELED_RL_PATH, labeled=False)
-	X_train, X_test, y_train, y_test = split_train_test(labeled_dic, test_size=test_size)
+    labeled_dic = convert_txt_to_npy(LABELED_RL_PATH)
+    unlabeled_dic = convert_txt_to_npy(UNLABELED_RL_PATH, labeled=False)
+    X_train, X_test, y_train, y_test = split_train_test(labeled_dic, test_size=test_size)
+    
+    lda = LDA()
+    lda.fit(X_train, y_train)
+    score = metrics.accuracy_score(lda.predict(X_test), y_test)
+    print("Baseline LDA: %f " % score)
 
-	class DataSets(object):
-	    pass
-	data_sets = DataSets()
+    class DataSets(object):
+        pass
+    data_sets = DataSets()
 
-	if one_hot:
-		y_train = convert_to_one_hot(y_train)
-		y_test = convert_to_one_hot(y_test)
+    if one_hot:
+        y_train = convert_to_one_hot(y_train)
+        y_test = convert_to_one_hot(y_test)
 
-	data_sets = DataSets()
-	data_sets.test = DataSet(X_test, y_test)
-	data_sets.train = SemiDataSet(unlabeled_dic['data'], X_train, y_train)
+    data_sets = DataSets()
+    data_sets.test = DataSet(X_test, y_test)
+    data_sets.train = SemiDataSet(unlabeled_dic['data'], X_train, y_train)
 
-	return data_sets
+    return data_sets
