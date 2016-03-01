@@ -18,7 +18,7 @@ starter_learning_rate = 0.00005
 
 decay_after = 15 # epoch after which to begin learning rate decay
 
-batch_size = 450
+batch_size = 400
 num_iter = (num_examples/batch_size) * num_epochs # number of loop iterations
 
 inputs = tf.placeholder(tf.float32, shape=(None, layer_sizes[0]))
@@ -179,12 +179,13 @@ with tf.control_dependencies([train_step]):
     train_step = tf.group(bn_updates)
 
 print "===  Loading Data ==="
-subpop = input_data.read_subpop_data()
+subpop = input_data.read_subpop_data(undersample=True)
 
 saver = tf.train.Saver()
 
 print "===  Starting Session ==="
-sess = tf.Session()
+gpu_options = tf.GPUOptions(per_process_gpu_memory_fraction=0.5)
+sess = tf.Session(config=tf.ConfigProto(gpu_options=gpu_options))
 
 i_iter = 0
 

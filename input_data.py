@@ -152,20 +152,25 @@ class SemiDataSet(object):
 '''
 Read data and convert it into an DataSet object
 '''
-def read_subpop_data(one_hot=True, fake_data=False, test_size=0.2):
+def read_subpop_data(one_hot=True, fake_data=False, test_size=0.2, undersample=False):
 
     labeled_dic = convert_txt_to_npy(LABELED_RL_PATH)
     unlabeled_dic = convert_txt_to_npy(UNLABELED_RL_PATH, labeled=False)
     X_train, X_test, y_train, y_test = split_train_test(labeled_dic, test_size=test_size)
-    
-    lda = LDA()
-    lda.fit(X_train, y_train)
-    score = metrics.accuracy_score(lda.predict(X_test), y_test)
-    print("Baseline LDA: %f " % score)
 
     class DataSets(object):
         pass
     data_sets = DataSets()
+    
+    if undersample:
+        from unbalanced_dataset import UnderSampler 
+        US = UnderSampler(verbose=True)
+        X_train, y_train = US.fit_transform(X_train, y_train)
+        
+    lda = LDA()
+    lda.fit(X_train, y_train)
+    score = metrics.accuracy_score(lda.predict(X_test), y_test)
+    print("Baseline LDA: %f " % score)
 
     if one_hot:
         y_train = convert_to_one_hot(y_train)
